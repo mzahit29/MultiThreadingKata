@@ -13,6 +13,6 @@ int Util::factorial(int x)
 		result *= i;
 	}
 
-	Util::th_info(__FUNCTION__, " Result of ", x, " factorial is ", result);
+	Util::print(__FUNCTION__, " Result of ", x, " factorial is ", result);
 	return result;
 }

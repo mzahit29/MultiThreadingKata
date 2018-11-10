@@ -9,13 +9,13 @@ class Util
 	static std::mutex mtx_;
 
 	template <typename T>
-	static void th_info_(T last);
+	static void print_(T last);
 	template <typename T, typename... Args>
-	static void th_info_(T first, Args... args);
+	static void print_(T first, Args... args);
 
 public:
 	template <typename... Args>
-	static void th_info(Args... args);
+	static void print(Args... args);
 
 	static int factorial(int x);
 	
@@ -23,22 +23,22 @@ public:
 
 
 template <typename T>
-void Util::th_info_(T last)
+void Util::print_(T last)
 {
 	cout << last << endl;
 }
 template <typename T, typename ... Args>
-void Util::th_info_(T first, Args... args)
+void Util::print_(T first, Args... args)
 {
 	cout << first;
-	th_info_(args...);
+	print_(args...);
 }
 
 template <typename ... Args>
-void Util::th_info(Args... args)
+void Util::print(Args... args)
 {
 	std::lock_guard<std::mutex> lg(mtx_);
 	cout << "[" << this_thread::get_id() << "] ";
 
-	th_info_(args...);
+	print_(args...);
 }
