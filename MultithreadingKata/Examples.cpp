@@ -88,3 +88,25 @@ void Examples::simple_thread_functor()
 	Util::print(__FUNCTION__, " joining algo thread");
 	t1.join();
 }
+
+class MathF
+{
+public:
+	void operator()(string& msg)
+	{
+		Util::print(__FUNCTION__, " ", msg);
+		msg = "sen olmedin sonsuza kadar kalbimizdesin";
+	}
+};
+void Examples::simple_thread_functor_pass_value()
+{
+	string msg{ "Atam izindeyiz" };
+	thread t1{ MathF(), std::ref(msg) };
+	
+	Util::simulate_work(__FUNCTION__);
+
+	t1.join();
+
+	Util::print(__FUNCTION__, " ", msg);
+
+}

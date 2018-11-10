@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <mutex>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -18,7 +19,8 @@ public:
 	static void print(Args... args);
 
 	static int factorial(int x);
-	
+
+	static void simulate_work(string parent_func);
 };
 
 

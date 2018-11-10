@@ -16,3 +16,13 @@ int Util::factorial(int x)
 	Util::print(__FUNCTION__, " Result of ", x, " factorial is ", result);
 	return result;
 }
+
+void Util::simulate_work(string parent_func)
+{
+	for (int i = 20; i > 0; --i)
+	{
+		int stime{ 10 };
+		Util::print(parent_func, " ", i, " will sleep for ", stime, " ms");
+		this_thread::sleep_for(chrono::milliseconds(stime));
+	}
+}
