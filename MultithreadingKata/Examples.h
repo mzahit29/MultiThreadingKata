@@ -6,5 +6,6 @@ public:
 	~Examples();
 
 	static void simple_thread_lambda();
+	static void simple_thread_function();
 };
 

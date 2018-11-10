@@ -16,6 +16,8 @@ class Util
 public:
 	template <typename... Args>
 	static void th_info(Args... args);
+
+	static int factorial(int x);
 	
 };
 
@@ -28,7 +30,7 @@ void Util::th_info_(T last)
 template <typename T, typename ... Args>
 void Util::th_info_(T first, Args... args)
 {
-	cout << first << " - ";
+	cout << first;
 	th_info_(args...);
 }
 

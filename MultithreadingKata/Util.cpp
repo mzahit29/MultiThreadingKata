@@ -5,3 +5,14 @@ using namespace std;
 
 std::mutex Util::mtx_;
 
+int Util::factorial(int x)
+{
+	int result{ 1 };
+	for (int i = x; i > 1; --i)
+	{
+		result *= i;
+	}
+
+	Util::th_info(__FUNCTION__, " Result of ", x, " factorial is ", result);
+	return result;
+}
