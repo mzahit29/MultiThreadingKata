@@ -21,6 +21,9 @@ public:
 	static int factorial(int x);
 
 	static void simulate_work(string parent_func);
+
+	static void count_up_to_limit(int limit, std::mutex& m);
+	static void count_down_to_zero(int start, std::mutex& m);
 };
 
 

@@ -110,3 +110,15 @@ void Examples::simple_thread_functor_pass_value()
 	Util::print(__FUNCTION__, " ", msg);
 
 }
+
+void Examples::race_condition_on_cout()
+{
+	// t1 and t2 are synchronizing the access to shared resource cout over mutex m
+	std::mutex m;
+	thread t1(Util::count_down_to_zero, 100, std::ref(m));
+	thread t2(Util::count_up_to_limit, 100, std::ref(m));
+
+	t1.join();
+	t2.join();
+
+}

@@ -9,5 +9,6 @@ public:
 	static void simple_thread_function();
 	static void simple_thread_functor();
 	static void simple_thread_functor_pass_value();
+	static void race_condition_on_cout();
 };
 
