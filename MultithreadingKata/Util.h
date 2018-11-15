@@ -24,6 +24,8 @@ public:
 
 	static void count_up_to_limit(int limit, std::mutex& m);
 	static void count_down_to_zero(int start, std::mutex& m);
+
+	static void print_letter_turn_based(int t_id, bool& run_flag, int& turn, char& c, mutex& m, condition_variable& cond);
 };
 
 

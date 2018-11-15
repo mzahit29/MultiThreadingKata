@@ -122,3 +122,24 @@ void Examples::race_condition_on_cout()
 	t2.join();
 
 }
+
+void Examples::race_condition_on_cout_with_cond_var()
+{
+	// t1 will print 'a' and notify t2 to print the next letter
+	char c{ 'A' };
+	bool run_flag{ false };
+	mutex m;
+	condition_variable cond;
+	int next_thread{ 0 };
+	thread t1(Util::print_letter_turn_based, 0, std::ref(run_flag), std::ref(next_thread), std::ref(c), std::ref(m), std::ref(cond));
+	thread t2(Util::print_letter_turn_based, 1, std::ref(run_flag), std::ref(next_thread), std::ref(c), std::ref(m), std::ref(cond));
+
+	// Now both threads are waiting on cond, set run_flag and wake one of them up from main thread
+	// The first thread to enter synchronized section, will finish its work on the shared resource and
+	// will trigger the other thread waiting on that cond var
+	run_flag = true;
+	cond.notify_one();
+
+	t1.join();
+	t2.join();
+}

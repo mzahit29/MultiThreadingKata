@@ -10,5 +10,6 @@ public:
 	static void simple_thread_functor();
 	static void simple_thread_functor_pass_value();
 	static void race_condition_on_cout();
+	static void race_condition_on_cout_with_cond_var();
 };
 
