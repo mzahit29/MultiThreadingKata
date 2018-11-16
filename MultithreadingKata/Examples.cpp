@@ -143,3 +143,43 @@ void Examples::race_condition_on_cout_with_cond_var()
 	t1.join();
 	t2.join();
 }
+
+// Threads print the character C, increment C, unlock mutex and then sleep for 100 qs
+// Our aim is t1 prints one letter, and then the next letter is printed by t2
+// BUG: But sometimes same thread writes two consecutive characters!
+void Examples::race_condition_on_cout_without_cond_var()
+{
+	char C{ 'A' };
+	mutex m;
+
+	thread t1{[&m, &C]()
+	{
+		while(C <= 'Z')
+		{
+			unique_lock<mutex> ul(m);
+			if (C > 'Z') break;
+			Util::print(C);
+			C++;
+			ul.unlock();
+			
+			this_thread::sleep_for(chrono::milliseconds(100));
+		}
+	} };
+
+	thread t2{[&m, &C]()
+	{
+		while(C <= 'Z')
+		{
+			unique_lock<mutex> ul(m);
+			if (C > 'Z') break;
+			Util::print(C);
+			C++;
+			ul.unlock();
+
+			this_thread::sleep_for(chrono::milliseconds(100));
+		}
+	} };
+
+	t1.join();
+	t2.join();
+}
