@@ -237,3 +237,28 @@ void Examples::dead_lock_solution()
 	t1.join();
 	t2.join();
 }
+
+void Examples::dead_lock_solution_with_lg()
+{
+	mutex m1, m2;
+	thread t1([&]()
+	{
+		// Standard library lock function has deadlock avoidance mechanism
+		// Even though we are giving the mutexes in reverse order,
+		// deadlock doesn't happen
+		lock(m1, m2);
+		lock_guard<mutex> lg1(m1, adopt_lock);
+		lock_guard<mutex> lg2(m2, adopt_lock);
+		// Do stuff
+	});
+	thread t2([&]()
+	{
+		lock(m2, m1);
+		lock_guard<mutex> lg2(m2, adopt_lock);
+		lock_guard<mutex> lg1(m1, adopt_lock);
+		// Do stuff
+	});
+
+	t1.join();
+	t2.join();
+}
