@@ -12,5 +12,6 @@ public:
 	static void race_condition_on_cout();
 	static void race_condition_on_cout_with_cond_var();
 	static void race_condition_on_cout_without_cond_var();
+	static void dead_lock();
 };
 

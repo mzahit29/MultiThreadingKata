@@ -183,3 +183,28 @@ void Examples::race_condition_on_cout_without_cond_var()
 	t1.join();
 	t2.join();
 }
+
+void Examples::dead_lock()
+{
+	mutex m1, m2;
+
+	// Locking order of m1 and m2 has to be the same in all threads
+	// o.w. deadlock occurs
+	thread t1([&]()
+	{
+		m1.lock();
+		Util::print("Locked m1");
+		m2.lock();
+		Util::print("Locked m2");
+	});
+	thread t2([&]()
+	{
+		m2.lock();
+		Util::print("Locked m2");
+		m1.lock();
+		Util::print("Locked m1");
+	});
+
+	t1.join();
+	t2.join();
+}
