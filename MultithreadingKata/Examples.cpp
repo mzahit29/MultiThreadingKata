@@ -208,3 +208,32 @@ void Examples::dead_lock()
 	t1.join();
 	t2.join();
 }
+
+void Examples::dead_lock_solution()
+{
+	mutex m1, m2;
+
+	// Locking order of m1 and m2 has to be the same in all threads
+	// o.w. deadlock occurs
+	thread t1([&]()
+	{
+		m1.lock();
+		Util::print("Locked m1");
+		m2.lock();
+		Util::print("Locked m2");
+		m1.unlock();
+		m2.unlock();
+	});
+	thread t2([&]()
+	{
+		m1.lock();
+		Util::print("Locked m1");
+		m2.lock();
+		Util::print("Locked m2");
+		m1.unlock();
+		m2.unlock();
+	});
+
+	t1.join();
+	t2.join();
+}
