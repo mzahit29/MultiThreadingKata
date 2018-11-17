@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include "Util.h"
+#include <queue>
 
 using namespace std;
 
@@ -290,4 +291,87 @@ void Examples::call_once()
 
 	t1.join();
 	t2.join();
+}
+
+void Examples::producer_consumer()
+{
+	mutex q_mtx_;
+	condition_variable cond_q_;
+	queue<int> q_;
+
+	// t1 = producer
+	// t2 = consumer 1
+	// t3 = consumer 2
+	thread t1{ [&]()
+	{
+		for (int i = 0; i < 10; ++i)
+		{
+			unique_lock<mutex> ul(q_mtx_);
+
+			Util::print(__FUNCTION__, "pushing to queue: ", i);
+			q_.push(i);
+			ul.unlock();
+
+			cond_q_.notify_one();
+			this_thread::sleep_for(chrono::milliseconds(100));
+		}
+	} };
+
+	thread t2{ [&]()
+	{
+		while (true)
+		{
+			cv_status timeout{ cv_status::no_timeout };
+
+			unique_lock<mutex> ul(q_mtx_);
+			while(q_.empty())
+			{
+				const auto status = cond_q_.wait_for(ul, chrono::seconds(1));
+				if (status == cv_status::timeout)
+				{
+					timeout = cv_status::timeout;
+					break;
+				}
+			}
+
+			if (timeout == cv_status::no_timeout)
+			{
+				Util::print(__FUNCTION__, "Received data from queue: ", q_.front());
+				q_.pop();
+				ul.unlock();
+			}
+			else // timed out
+			{
+				Util::print(__FUNCTION__, "No data received in 1 second, exiting thread");
+				break;
+			}
+		}
+	} };
+
+	thread t3{ [&]()
+	{
+		while (true)
+		{
+			unique_lock<mutex> ul(q_mtx_);
+			const bool q_not_empty = cond_q_.wait_until(ul, 
+				chrono::system_clock::now() + chrono::seconds(1), 
+				[&q_]() { return !q_.empty(); });
+
+			if (q_not_empty)
+			{
+				Util::print(__FUNCTION__, "Received data from queue: ", q_.front());
+				q_.pop();
+				ul.unlock();
+			}
+			else // q is empty for longer than 1 second
+			{
+				Util::print(__FUNCTION__, "No data received in 1 second, exiting thread");
+				break;
+			}
+		}
+	} };
+	
+	t1.join();
+	t2.join();
+	t3.join();
 }
