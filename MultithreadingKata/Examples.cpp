@@ -262,3 +262,32 @@ void Examples::dead_lock_solution_with_lg()
 	t1.join();
 	t2.join();
 }
+
+void Examples::call_once()
+{
+	once_flag flag1, flag2, flag3;
+
+	thread t1([&]()
+	{
+		std::call_once(flag1, &Util::print<string>, "All these functions will be called only once");
+		this_thread::sleep_for(chrono::seconds(1));
+		std::call_once(flag2, &Util::factorial, 4);
+		std::call_once(flag3, []()
+		{
+			Util::print("This is called only once, even though this block is in both t1 and t2");
+		});
+	});
+
+	thread t2([&]()
+	{
+		std::call_once(flag1, &Util::print<string>, "All these functions will be called only once");
+		std::call_once(flag2, &Util::factorial, 4);
+		std::call_once(flag3, []()
+		{
+			Util::print("This is called only once, even though this block is in both t1 and t2");
+		});
+	});
+
+	t1.join();
+	t2.join();
+}
