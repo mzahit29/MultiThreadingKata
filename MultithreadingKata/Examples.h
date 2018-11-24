@@ -19,5 +19,6 @@ public:
 	static void producer_consumer();
 	static void producer_consumer_chain();
 	static void parent_thread_dead_before_child();
+	static void parent_thread_dead_before_child_child_holds_mutex();
 };
 
