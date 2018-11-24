@@ -17,5 +17,6 @@ public:
 	static void dead_lock_solution_with_lg();
 	static void call_once();
 	static void producer_consumer();
+	static void producer_consumer_chain();
 };
 

@@ -375,3 +375,98 @@ void Examples::producer_consumer()
 	t2.join();
 	t3.join();
 }
+
+void Examples::producer_consumer_chain()
+{
+	queue<int> q_;
+	mutex q_mtx_;
+	condition_variable cond_q_1_;
+	condition_variable cond_q_2_;
+	int tid_last_consumer{ 1 };
+
+	thread t1([&]()
+	{
+		for (int i = 0; i < 100; ++i)
+		{
+			unique_lock<mutex> ul(q_mtx_);
+			Util::print(__FUNCTION__, " Pushing ", i, " to queue");
+			q_.push(i);
+			ul.unlock();
+			cond_q_1_.notify_one();
+			this_thread::sleep_for(chrono::milliseconds(50));
+			
+		}
+	});
+
+	thread t2([&]()
+	{
+		while(true)
+		{
+			int me{ 2 };
+			unique_lock<mutex> ul(q_mtx_);
+			if(cond_q_1_.wait_until(ul, chrono::system_clock::now() + chrono::milliseconds(100), 
+				[&]() { return tid_last_consumer != me && !q_.empty(); }))
+			{
+				const auto data = q_.front();
+				Util::print(__FUNCTION__, "Data received on queue: ", data);
+				tid_last_consumer = me;
+				ul.unlock();
+				cond_q_2_.notify_one();
+				if (data % 7 == 0)
+				{
+					Util::print(__FUNCTION__, data, " is divisible by 7");
+				}
+			}
+			else
+			{
+				if (tid_last_consumer == me) // still last consumer is me
+				{
+					Util::print(__FUNCTION__, "Timeout: Data not processed by t3 during wait");
+					Util::print(__FUNCTION__, "Will wait for t3");
+				}
+				if (q_.empty())
+				{
+					Util::print(__FUNCTION__, "Timeout: Queue is empty during wait");
+					Util::print(__FUNCTION__, "Exiting thread");
+					break;
+				}
+			}
+		}
+	});
+
+	thread t3([&]()
+	{
+		while(true)
+		{
+			int me{ 3 };
+			unique_lock<mutex> ul(q_mtx_);
+			if (cond_q_2_.wait_until(ul, chrono::system_clock::now() + chrono::milliseconds(100),
+				[&](){return tid_last_consumer == 2 && !q_.empty(); }))
+			{
+				const auto data = q_.front();
+				Util::print(__FUNCTION__, "Data received on queue: ", data);
+				q_.pop();
+				tid_last_consumer = me;
+				ul.unlock();
+			}
+			else
+			{
+				if (tid_last_consumer == me) // still last consumer is me
+				{
+					Util::print(__FUNCTION__, "Timeout: Data not processed by t2 during wait");
+					Util::print(__FUNCTION__, "Will wait for t2");
+				}
+				if (q_.empty())
+				{
+					Util::print(__FUNCTION__, "Timeout: Queue is empty during wait");
+					Util::print(__FUNCTION__, "Exiting thread");
+					break;
+				}
+			}
+		}
+	});
+
+	t1.join();
+	t2.join();
+	t3.join();
+}
