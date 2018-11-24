@@ -470,3 +470,30 @@ void Examples::producer_consumer_chain()
 	t2.join();
 	t3.join();
 }
+
+void Examples::parent_thread_dead_before_child()
+{
+	// Parent thread t1, creates a child thread t2 and detaches it
+	// Exits before waiting for its detached child
+	// Observe what happens:
+	// 1- Program doesn't crash
+	// 2- Since parent exits before child, child last message is lost
+	// 
+	thread t_parent([]()
+	{
+		mutex m;
+		Util::print(__FUNCTION__, "Creating child thread from parent thread");
+		thread t_child([]()
+		{
+			Util::print(__FUNCTION__, "Inside child thread");
+			this_thread::sleep_for(chrono::seconds(1));
+			Util::print(__FUNCTION__, "Child thread woke up after 1 seconds");
+		});
+		Util::print(__FUNCTION__, "Detaching child thread");
+		t_child.detach();
+
+		Util::print(__FUNCTION__, "Exiting parent thread, not waiting for child thread");
+	});
+
+	t_parent.join();
+}

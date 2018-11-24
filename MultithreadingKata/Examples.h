@@ -18,5 +18,6 @@ public:
 	static void call_once();
 	static void producer_consumer();
 	static void producer_consumer_chain();
+	static void parent_thread_dead_before_child();
 };
 
