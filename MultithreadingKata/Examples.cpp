@@ -527,3 +527,49 @@ void Examples::parent_thread_dead_before_child_child_holds_mutex()
 
 	t_parent.join();
 }
+
+// Parent thread creates an object that has a mutex inside it.
+// Locks the mutex
+// Starts a child thread passes the mutex reference to it
+// Child thread sleeps for 1 second
+// While child sleeps
+//   a) parent unlocks mutex
+//   b) parent destroys mutex
+//   c) parent blocks waiting for child thread to finish
+//   d) child wakes up and tries to call mtx->lock() but mutex has been destroyed
+//       RESULT => Read access violation at mtx_ref
+void Examples::parent_thread_destroys_mutex_whild_child_waits_to_lock()
+{
+	struct mtx_wrapper
+	{
+		mutex mtx_;
+		mtx_wrapper() { Util::print("mtx_wrapper is being constructed"); }
+		~mtx_wrapper() { Util::print("mtx_wrapper is being destructed"); }
+	};
+
+	//shared_ptr<mtx_wrapper> mt = shared_ptr<mtx_wrapper>(new mtx_wrapper); => make_shared is better performance wise
+	shared_ptr<mtx_wrapper> mt = std::make_shared<mtx_wrapper>();
+	Util::print("Parent locking mutex");
+	mt->mtx_.lock();
+	
+	mutex& mtx_ref = mt->mtx_;  // pass the mutex inside the wrapper object to the child thread
+	thread t_child([&mtx_ref]()
+	{
+		Util::print("Child thread entered");
+		this_thread::sleep_for(chrono::seconds(1));
+		if (mtx_ref.)
+		mtx_ref.lock();
+		Util::print("Child thread locked mutex");
+		
+		Util::print("Child thread exiting");
+	});
+
+	Util::print("Parent unlocking mutex");
+	mt->mtx_.unlock();
+	Util::print("Parent destroying mutex wrapper");
+	mt.reset(); // Mutex destroyed before child thread tried to lock
+
+	Util::print("Parent thread exiting");
+
+	t_child.join();
+}

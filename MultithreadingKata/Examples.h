@@ -20,5 +20,6 @@ public:
 	static void producer_consumer_chain();
 	static void parent_thread_dead_before_child();
 	static void parent_thread_dead_before_child_child_holds_mutex();
+	static void parent_thread_destroys_mutex_whild_child_waits_to_lock();
 };
 
