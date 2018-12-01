@@ -557,7 +557,6 @@ void Examples::parent_thread_destroys_mutex_whild_child_waits_to_lock()
 	{
 		Util::print("Child thread entered");
 		this_thread::sleep_for(chrono::seconds(1));
-		if (mtx_ref.)
 		mtx_ref.lock();
 		Util::print("Child thread locked mutex");
 		
