@@ -21,5 +21,6 @@ public:
 	static void parent_thread_dead_before_child();
 	static void parent_thread_dead_before_child_child_holds_mutex();
 	static void parent_thread_destroys_mutex_whild_child_waits_to_lock();
+	static void what_happens_to_detached_thread_when_parent_dies_before_it();
 };
 

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Examples.h"
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include "Util.h"
 #include <queue>
@@ -571,4 +572,26 @@ void Examples::parent_thread_destroys_mutex_whild_child_waits_to_lock()
 	Util::print("Parent thread exiting");
 
 	t_child.join();
+}
+
+void Examples::what_happens_to_detached_thread_when_parent_dies_before_it()
+{
+	thread t1{[](){
+		const string file_name{"what_happens to a thread when parent exits.txt"};
+		ofstream file{ file_name, ios::trunc };
+
+		for (int i = 0; i < 60; ++i)
+		{
+			this_thread::sleep_for(chrono::seconds(1));
+			file << "i: " << i << endl;
+		}
+	} };
+
+	// Detaching child thread. Parent thread will exit before it.
+	// As soon as parent exits child thread is owned by std runtime, and it is terminated
+	// You can check that it is terminated from the number of outputs in the text file.
+	// It was supposed to write a line per second for 60 seconds but it has stopped at line 28
+	// since around that time the parent has exited.
+	t1.detach();
+	this_thread::sleep_for(chrono::seconds(30));
 }
