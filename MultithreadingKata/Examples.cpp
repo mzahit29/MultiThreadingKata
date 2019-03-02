@@ -632,3 +632,20 @@ void Examples::testing_promise_with_std_async()
 
 	promise.set_value(5);
 }
+
+void Examples::testing_promise_with_std_async_exception()
+{
+	std::promise<int> promise;
+	std::future<int> future = promise.get_future();
+
+	std::future<int> result = std::async(std::launch::async, &Util::factorial_waiting_promise, std::ref(future));
+
+	// Main thread going to sleep, during this time the factorial_waiting_for_promise 
+	Util::print("Parent thread sleeps, simulating some calculation");
+	this_thread::sleep_for(chrono::seconds(2));
+
+	// After some time main thread fails to set the promise and notifies the child by
+	// setting promise's exception
+	promise.set_exception(std::make_exception_ptr(
+		std::runtime_error("Main thread failed to set the promise")));
+}

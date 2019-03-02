@@ -20,13 +20,23 @@ int Util::factorial(int x)
 int Util::factorial_waiting_promise(future<int>& fut)
 {
 	int result{ 1 };
-	int x = fut.get();	// This will block if main thread has not yet set the promise
-	for (int i = x; i > 1; --i)
+	int N{};
+	try
+	{
+		N = fut.get(); // This will block if main thread has not yet set the promise
+	}
+	catch (exception& e)
+	{
+		Util::print("[EXCEPTION] Promise not kept: ", e.what());
+		throw;
+	}
+	
+	for (int i = N; i > 1; --i)
 	{
 		result *= i;
 	}
 
-	Util::print(__FUNCTION__, " Result of ", x, " factorial is ", result);
+	Util::print(__FUNCTION__, " Result of ", N, " factorial is ", result);
 	return result;
 }
 
