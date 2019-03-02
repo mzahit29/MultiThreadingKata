@@ -5,6 +5,7 @@
 #include <thread>
 #include "Util.h"
 #include <queue>
+#include <future>
 
 using namespace std;
 
@@ -594,4 +595,24 @@ void Examples::what_happens_to_detached_thread_when_parent_dies_before_it()
 	// since around that time the parent has exited.
 	t1.detach();
 	this_thread::sleep_for(chrono::seconds(30));
+}
+
+void Examples::testing_future_with_std_async()
+{
+	// Main calls factorial with async
+
+	int x{ 5 };
+	// Method 1: We do not know when runtime will actually call the factorial
+	// because we haven't explicitly specified launch type. 
+	std::future<int> result = std::async(&Util::factorial, x);
+	// Method 2: We are deferring the runtime to call factorial only when future's get is called
+	// Infact this means factorial is running in the same thread.
+	//std::future<int> result = std::async(std::launch::deferred, &Util::factorial, x);
+	// Method 3: We are running the factorial in a separate thread in parallel, 
+	// long before the future's get is called
+	//std::future<int> result = std::async(std::launch::async, &Util::factorial, x);
+
+	this_thread::sleep_for(chrono::seconds(2));
+
+	cout << "Factorial(" << x << ") is : " << result.get() << endl;
 }
