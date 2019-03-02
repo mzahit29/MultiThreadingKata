@@ -616,3 +616,19 @@ void Examples::testing_future_with_std_async()
 
 	cout << "Factorial(" << x << ") is : " << result.get() << endl;
 }
+
+void Examples::testing_promise_with_std_async()
+{
+	std::promise<int> promise;
+	std::future<int> future = promise.get_future();
+
+	std::future<int> result = std::async(std::launch::async, &Util::factorial_waiting_promise, std::ref(future));
+
+	// Main thread going to sleep, during this time the factorial_waiting_for_promise 
+	// will be blocked on future.get because it is not yet set by main thread
+	// After a while parent maybe does some calculations and finally gets the value to set the promise
+	Util::print("Parent thread sleeps, simulating some calculation");
+	this_thread::sleep_for(chrono::seconds(2));
+
+	promise.set_value(5);
+}

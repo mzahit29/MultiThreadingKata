@@ -17,6 +17,19 @@ int Util::factorial(int x)
 	return result;
 }
 
+int Util::factorial_waiting_promise(future<int>& fut)
+{
+	int result{ 1 };
+	int x = fut.get();	// This will block if main thread has not yet set the promise
+	for (int i = x; i > 1; --i)
+	{
+		result *= i;
+	}
+
+	Util::print(__FUNCTION__, " Result of ", x, " factorial is ", result);
+	return result;
+}
+
 void Util::simulate_work(string parent_func)
 {
 	for (int i = 20; i > 0; --i)

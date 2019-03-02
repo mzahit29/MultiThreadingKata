@@ -2,6 +2,7 @@
 #include <mutex>
 #include <iostream>
 #include <string>
+#include <future>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ public:
 	static void print(Args... args);
 
 	static int factorial(int x);
+	static int factorial_waiting_promise(future<int>& fut);
 
 	static void simulate_work(string parent_func);
 

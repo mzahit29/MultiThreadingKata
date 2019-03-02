@@ -23,5 +23,6 @@ public:
 	static void parent_thread_destroys_mutex_whild_child_waits_to_lock();
 	static void what_happens_to_detached_thread_when_parent_dies_before_it();
 	static void testing_future_with_std_async();
+	static void testing_promise_with_std_async();
 };
 
